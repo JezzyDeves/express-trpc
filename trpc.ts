@@ -14,22 +14,34 @@ export const createContext = ({
 });
 type Context = inferAsyncReturnType<typeof createContext>;
 
-const t = initTRPC.context<Context>().create();
+const trpc = initTRPC.context<Context>().create();
 
-export const appRouter = t.router({
-  getToken: t.procedure
+const auth = trpc.middleware(async (opts) => {
+  try {
+    if (opts.ctx.token) {
+      jwt.verify(opts.ctx.token, process.env.SECRET_TOKEN!);
+
+      return opts.next({
+        ctx: opts.ctx,
+      });
+    }
+
+    throw new Error();
+  } catch (error) {
+    throw new TRPCError({ code: "FORBIDDEN" });
+  }
+});
+
+export const appRouter = trpc.router({
+  getToken: trpc.procedure
     .input(z.object({ userName: z.string().min(1) }))
     .mutation((opts) => {
       return jwt.sign(opts.input, process.env.SECRET_TOKEN!, {
         expiresIn: "1m",
       });
     }),
-  getUser: t.procedure.query((opts) => {
-    if (opts.ctx.token) {
-      return jwt.verify(opts.ctx.token, process.env.SECRET_TOKEN!);
-    }
-
-    throw new TRPCError({ code: "UNAUTHORIZED" });
+  getUser: trpc.procedure.use(auth).query((opts) => {
+    return jwt.verify(opts.ctx.token!, process.env.SECRET_TOKEN!);
   }),
 });
 

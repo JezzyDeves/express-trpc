@@ -2,9 +2,11 @@
   "name": "express-trpc",
   "version": "1.0.0",
   "description": "",
-  "main": "trpc.ts",
+  "main": "index.ts",
   "scripts": {
-    "run": "nodemon index.ts"
+    "dev": "nodemon index.ts",
+    "run": "nodemon dist/index.js",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
