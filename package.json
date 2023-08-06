@@ -2,7 +2,7 @@
   "name": "express-trpc",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
+  "main": "trpc.ts",
   "scripts": {
     "run": "nodemon index.ts"
   },
